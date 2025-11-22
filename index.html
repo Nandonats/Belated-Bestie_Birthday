@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Bestie!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* --- CSS STYLE --- */
+        :root {
+            --pink-utama: #ffafcc;
+            --pink-muda: #ffc8dd;
+            --biru-muda: #a2d2ff;
+            --kuning-muda: #ffef96;
+            --putih: #ffffff;
+            --teks: #5a3e3e;
+        }
+
+        body {
+            background-color: var(--pink-muda);
+            background-image: url('https://i.pinimg.com/736x/d3/c4/6a/d3c46a864ba99883d82de76345641ba5.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            color: var(--teks);
+        }
+
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(3px);
+            z-index: 1;
+        }
+
+        /* KOTAK UTAMA */
+        .container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.90);
+            padding: 25px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(255, 175, 204, 0.4);
+            max-width: 340px;
+            width: 85%;
+            border: 4px solid var(--pink-utama);
+            display: none;
+            animation: popUp 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        @keyframes popUp {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        .content-wrapper {
+            transition: all 0.5s ease-in-out;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .content-wrapper.fade-out {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+        }
+
+        img.stiker {
+            width: 175px;
+            height: auto;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
+        }
+
+        h1 {
+            font-family: 'Fredoka', sans-serif;
+            color: #ff5c8d;
+            margin: 5px 0;
+            font-size: 1.8rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin: 10px 0;
+            color: #755c5c;
+        }
+
+        .btn-lanjut {
+            background: linear-gradient(45deg, #ffafcc, #ff5c8d);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(255, 92, 141, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-block;
+        }
+        .btn-lanjut:hover { transform: scale(1.05); }
+
+        /* --- OVERLAY UMUM --- */
+        .full-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Hindari scroll body */
+            padding: 20px 0;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* --- WISHES BOX (SUDAH DIPERBAIKI SCROLLNYA) --- */
+        #wishesOverlay { background: rgba(162, 210, 255, 0.95); }
+        
+        .wish-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            width: 90%;
+            max-width: 400px;
+            margin-top: 20px;
+            margin-bottom: 20px; /* Jarak aman untuk tombol */
+            
+            /* LOGIKA SCROLL */
+            max-height: 55vh; /* Batas tinggi agar tombol tidak hilang */
+            overflow-y: auto; 
+            padding: 10px; /* Padding agar kartu miring tidak terpotong */
+            box-sizing: border-box;
+
+            scrollbar-width: thin;
+            scrollbar-color: var(--biru-muda) #fff;
+        }
+
+        .wish-grid::-webkit-scrollbar { width: 6px; }
+        .wish-grid::-webkit-scrollbar-track { background: rgba(255,255,255,0.3); border-radius: 10px; }
+        .wish-grid::-webkit-scrollbar-thumb { background: var(--putih); border-radius: 10px; }
+
+        .wish-card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+            text-align: left;
+            transform: rotate(-1deg);
+            font-family: 'Fredoka', sans-serif;
+            color: #555;
+            border-left: 5px solid var(--pink-utama);
+            margin-left: 5px; /* Sedikit geser agar shadow aman */
+            margin-right: 5px;
+        }
+        .wish-card:nth-child(even) { transform: rotate(1deg); border-left: 5px solid var(--kuning-muda); }
+
+        /* --- SPECIAL MESSAGE (SURAT) --- */
+        #messageOverlay { background: rgba(255, 250, 240, 0.95); }
+        
+        .letter-container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 80%;
+            max-width: 450px;
+            text-align: left;
+            border: 2px dashed var(--pink-utama);
+            position: relative;
+            margin-bottom: 20px;
+            
+            /* LOGIKA SCROLL SURAT */
+            max-height: 55vh; 
+            overflow-y: auto; 
+            scrollbar-width: thin;
+            scrollbar-color: var(--pink-utama) #fff;
+        }
+
+        .letter-container::-webkit-scrollbar { width: 6px; }
+        .letter-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .letter-container::-webkit-scrollbar-thumb { background: var(--pink-utama); border-radius: 10px; }
+
+        .letter-container h2 {
+            font-family: 'Fredoka', sans-serif;
+            color: var(--pink-utama);
+            margin-top: 0;
+        }
+
+        .isi-surat {
+            font-family: 'Nunito', sans-serif;
+            color: #555;
+            line-height: 1.8;
+            font-size: 1rem;
+            white-space: pre-line;
+        }
+
+        /* GALLERY OVERLAY */
+        #galleryOverlay { background: rgba(255, 175, 204, 0.95); }
+        .gallery-title {
+            font-family: 'Fredoka', sans-serif;
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        /* --- GRID 5 FOTO --- */
+        .photo-grid {
+            display: flex;      
+            flex-wrap: wrap;     
+            justify-content: center;
+            gap: 10px;           
+            width: 95%;
+            max-width: 500px;
+        }
+
+        .photo-card {
+            background: white;
+            padding: 5px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 30%; 
+            aspect-ratio: 1/1; 
+            position: relative;
+            overflow: hidden;
+            transform: rotate(-2deg);
+            transition: transform 0.3s;
+        }
+        
+        .photo-card:nth-child(even) { transform: rotate(2deg); }
+        .photo-card:nth-child(3) { transform: rotate(-1deg); }
+        .photo-card:nth-child(5) { transform: rotate(1deg); }
+        
+        .photo-card:hover { transform: scale(1.1) rotate(0deg); z-index: 10; }
+
+        .photo-card img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            border-radius: 8px; 
+        }
+
+        .close-btn {
+            margin-top: 10px;
+            background: white;
+            color: #555;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 200; 
+        }
+
+        .heart {
+            position: fixed;
+            color: #ff5c8d;
+            animation: float 6s linear infinite;
+            z-index: 5;
+            font-size: 24px;
+            opacity: 0.7;
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh); opacity: 1; }
+            100% { transform: translateY(-10vh); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="overlay"></div>
+    <audio id="lagu" src="https://nandonats.github.io/document-asset/Mono_edit.mp3" loop></audio>
+
+    <div class="container" id="kotakKonten">
+        <div class="content-wrapper" id="wrapper">
+            <img src="https://nandonats.github.io/document-asset/Halo.gif" id="gambarStiker" class="stiker">
+            <h1 id="judulTeks">Haii Bestie! 👋</h1>
+            <p id="pesanTeks">I have something for you...</p>
+        </div>
+        <button class="btn-lanjut" id="tombolLanjut" onclick="nextStep()">Klik Me! 🌸</button>
+    </div>
+
+    <div id="wishesOverlay" class="full-overlay">
+        <h1 class="gallery-title">Our Hopes & Wishes 🌠</h1>
+        
+        <div class="wish-grid">
+            <div class="wish-card">💖 <b>You're One of a Kind:</b> You are truly one of a kind, and your presence always brings such positive energy. I truly value our friendship!</div>
+            <div class="wish-card">🌟 <b>Keep Shining Bright:</b> May this year be filled with great achievements and bring you closer to all the goals and aspirations you hold!</div>
+            <div class="wish-card">🎯 <b>Celebrate Big!:</b> You deserve all the happiness and success for your hard work and good nature. Enjoy your special day to the fullest!</div>
+            <div class="wish-card">🗺️ <b>Embrace the Adventure:</b> Step into every day with enthusiasm! May your path ahead be full of exciting new experiences and beautiful, lasting memories.</div>
+        </div>
+
+        <button class="close-btn" onclick="tutupWishes()">Next ❤️</button>
+    </div>
+
+    <div id="messageOverlay" class="full-overlay">
+        <div class="letter-container">
+            <h2>Dear Pretty Bestie, 💌</h2>
+            <p class="isi-surat">
+                Happy Birthday! 🎉<br>
+                On this special day, I want you to know how grateful I am to have you in my life. You bring so much joy, laughter, and positivity to everyone around you.<br>
+                Your kindness, strength, and beautiful soul inspire me every day. Here's to celebrating You and all the wonderful moments we've shared together! Even though we haven't met in person, I truly value the connection we share.<br>
+                I added a scrolling feature here just in case I write too much because there are so many good things to say about you!<br>
+                May this birthday be the start of your best year yet, filled with love, adventure, and all the amazing things you deserve!
+            </p>
+            <p style="margin-top: 20px; font-weight: bold; color: #ff5c8d; text-align: right;">- Your Bestie -</p>
+        </div>
+        <button class="close-btn" onclick="tutupPesan()">Next Again ✨</button>
+    </div>
+
+    <div id="galleryOverlay" class="full-overlay">
+        <div class="gallery-content" style="text-align:center; width:100%; display:flex; flex-direction:column; align-items:center;">
+            <h1 class="gallery-title">Prettiest Bestie ✨</h1>
+            
+            <div class="photo-grid">
+                <div class="photo-card"><img src="foto1.png" alt="Foto 1"></div>
+                <div class="photo-card"><img src="foto2.png" alt="Foto 2"></div>
+                <div class="photo-card"><img src="foto3.png" alt="Foto 3"></div>
+                
+                <div class="photo-card"><img src="foto4.png" alt="Foto 4"></div>
+                <div class="photo-card"><img src="foto5.png" alt="Foto 5"></div>
+            </div>
+
+            <p style="color: white; margin-top: 20px;">Always by your side, Bestie! 💖</p>
+            <button class="close-btn" onclick="location.reload()">Ulangi Lagi 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        // --- SETTING ---
+        const usernameIG = "moodonando"; // GANTI DENGAN USERNAME IG KAMU
+        
+        const steps = [
+            {
+                img: "https://nandonats.github.io/document-asset/hmm.gif",
+                title: "Eitss...",
+                text: "Is it someone's birthday? 🤔"
+            },
+            {
+                img: "https://nandonats.github.io/document-asset/birthdouble.gif",
+                title: "Happy Birthday!",
+                text: "Happy Birthday to my most beautiful and kind-hearted bestie! ✨"
+            },
+            {
+                img: "https://nandonats.github.io/document-asset/harapan.gif",
+                title: "Wishes For You",
+                text: "May you have a long life, good health, and a brighter year ahead! 💖"
+            },
+            {   
+                img: "https://nandonats.github.io/document-asset/specialwish.gif",
+                title: "Make a Wish",
+                text: "I've written down my hopes for you, please read them... 🥺",
+                isWishes: true 
+            },
+            {
+                img: "https://nandonats.github.io/document-asset/malu.gif",
+                title: "One More Thing...",
+                text: "There's a little letter for you, read it slowly, okay? ❤️",
+                isMessage: true
+            },
+            {
+                img: "https://nandonats.github.io/document-asset/nyengir.gif",
+                title: "Kirim & Lihat Magic! ✨",
+                text: "Pesan otomatis tersalin, tinggal paste aja di DM IG ya!",
+                isFinal: true 
+            }
+        ];
+
+        let currentStep = -1;
+        const audio = document.getElementById('lagu');
+        const box = document.getElementById('kotakKonten');
+        const wrapper = document.getElementById('wrapper');
+        const img = document.getElementById('gambarStiker');
+        const title = document.getElementById('judulTeks');
+        const text = document.getElementById('pesanTeks');
+        const btn = document.getElementById('tombolLanjut');
+        
+        const wishesOverlay = document.getElementById('wishesOverlay');
+        const messageOverlay = document.getElementById('messageOverlay');
+        const galleryOverlay = document.getElementById('galleryOverlay');
+
+        window.onload = function() {
+            Swal.fire({
+                title: 'Hi Gabriela!',
+                text: 'Use headphones to make it more enjoyable! 🎧',
+                imageUrl: 'https://nandonats.github.io/document-asset/oi.gif',
+                imageWidth: 120,
+                imageHeight: 120,
+                confirmButtonText: "<b>Okay, let's go! 🚀</b>",
+                confirmButtonColor: '#ffafcc',
+                background: '#fff0f5',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    audio.play();
+                    box.style.display = 'block';
+                    createHearts();
+                }
+            });
+        }
+
+        function nextStep() {
+            wrapper.classList.add('fade-out');
+
+            setTimeout(() => {
+                currentStep++;
+                const data = steps[currentStep];
+
+                if (data.isWishes) {
+                    updateContent(data);
+                    btn.innerText = "Open the Box of Hope 🎁";
+                    btn.onclick = bukaWishes;
+                    return;
+                }
+
+                if (data.isMessage) {
+                    updateContent(data);
+                    btn.innerText = "Read the Letter 💌";
+                    btn.onclick = bukaPesan;
+                    return;
+                }
+
+                if (data.isFinal) {
+                    updateContent(data);
+                    btn.innerText = "DM Instagram 💬"; 
+                    btn.onclick = bukaIgDanGaleri;
+                    return;
+                }
+
+                updateContent(data);
+
+            }, 500);
+        }
+
+        function updateContent(data) {
+            img.src = data.img;
+            title.innerText = data.title;
+            text.innerText = data.text;
+            wrapper.classList.remove('fade-out');
+        }
+
+        function bukaWishes() {
+            box.style.display = 'none';
+            wishesOverlay.style.display = 'flex';
+            setTimeout(() => { wishesOverlay.style.opacity = '1'; }, 100);
+        }
+
+        function tutupWishes() {
+            wishesOverlay.style.opacity = '0';
+            setTimeout(() => {
+                wishesOverlay.style.display = 'none';
+                box.style.display = 'block'; 
+                nextStep(); 
+            }, 500);
+        }
+
+        function bukaPesan() {
+            box.style.display = 'none';
+            messageOverlay.style.display = 'flex';
+            setTimeout(() => { messageOverlay.style.opacity = '1'; }, 100);
+        }
+
+        function tutupPesan() {
+            messageOverlay.style.opacity = '0';
+            setTimeout(() => {
+                messageOverlay.style.display = 'none';
+                box.style.display = 'block';
+                nextStep();
+            }, 500);
+        }
+
+        async function bukaIgDanGaleri() {
+            const pesan = "Hehehe Makasih yaa!! 🫶";
+            try {
+                await navigator.clipboard.writeText(pesan);
+                const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: true });
+                Toast.fire({ icon: 'success', title: 'Pesan tersalin! Tinggal Paste' });
+            } catch (err) { console.error(err); }
+
+            setTimeout(() => { 
+                window.open(`https://www.instagram.com/${usernameIG}/`, "_blank"); 
+            }, 1000);
+
+            partyTime();
+
+            setTimeout(() => {
+                box.style.display = 'none';
+                galleryOverlay.style.display = 'flex';
+                setTimeout(() => { galleryOverlay.style.opacity = '1'; }, 100);
+            }, 1500);
+        }
+
+        function createHearts() {
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerHTML = ['🌸', '❤️', '🍬', '✨'][Math.floor(Math.random() * 4)];
+                heart.style.left = Math.random() * 100 + "vw";
+                heart.style.animationDuration = Math.random() * 3 + 2 + "s";
+                document.body.appendChild(heart);
+                setTimeout(() => { heart.remove(); }, 5000);
+            }, 400);
+        }
+
+        function partyTime() {
+            const duration = 3000;
+            const end = Date.now() + duration;
+            const colors = ['#ffafcc', '#ffc8dd', '#ffffff'];
+
+            (function frame() {
+                confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
+                confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+        }
+    </script>
+</body>
+</html>
